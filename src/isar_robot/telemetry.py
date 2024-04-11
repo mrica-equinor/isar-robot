@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 import random
 from datetime import datetime
@@ -10,7 +11,9 @@ from robot_interface.telemetry.payloads import (
     TelemetryPressurePayload,
 )
 from robot_interface.utilities.json_service import EnhancedJSONEncoder
-
+from robot_interface.models.exceptions.robot_exceptions import (
+    RobotTelemetryException,
+)
 
 def _get_battery_level() -> float:
     # Return random float in the range [50, 100]
@@ -56,13 +59,18 @@ def get_pose_telemetry(isar_id: str, robot_name: str) -> str:
 
 
 def get_battery_telemetry(isar_id: str, robot_name: str) -> str:
-    battery_payload: TelemetryBatteryPayload = TelemetryBatteryPayload(
-        battery_level=_get_battery_level(),
-        isar_id=isar_id,
-        robot_name=robot_name,
-        timestamp=datetime.utcnow(),
+    # battery_payload: TelemetryBatteryPayload = TelemetryBatteryPayload(
+    #     battery_level=_get_battery_level(),
+    #     isar_id=isar_id,
+    #     robot_name=robot_name,
+    #     timestamp=datetime.utcnow(),
+    # )
+    # return json.dumps(battery_payload, cls=EnhancedJSONEncoder)
+
+    error_description: str = (
+        "Failed to retrieve telemetry after max retries were exceeded"
     )
-    return json.dumps(battery_payload, cls=EnhancedJSONEncoder)
+    raise RobotTelemetryException(error_description=error_description)
 
 
 def get_obstacle_status_telemetry(isar_id: str, robot_name: str) -> str:
